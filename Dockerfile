@@ -9,7 +9,7 @@ WORKDIR /app
 
 # Copy and install Python dependencies first (layer-cached)
 COPY requirements.txt .
-RUN pip install --no-cache-dir --ignore-installed -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
