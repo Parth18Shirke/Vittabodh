@@ -2,7 +2,7 @@
 # Uses the official TensorFlow base image (CPU-only, ~1.5 GB).
 # For GPU support, change to tensorflow/tensorflow:2.16.0-gpu.
 
-FROM tensorflow/tensorflow:2.16.0
+FROM tensorflow/tensorflow:2.16.1
 
 # Set working directory
 WORKDIR /app
