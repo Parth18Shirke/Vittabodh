@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="vb-hero">
+  <span class="vb-pill">⚡ Deep Learning · 98%+ accuracy · explained in plain English</span>
+  <h1>Loan decisions you can<br>actually understand.</h1>
+  <p>VittaBodh combines a Deep Neural Network with an Explainable Loan Risk Score
+     and AI-generated reasoning — so every approval or rejection comes with a clear,
+     honest "why", not just a number.</p>
+  <div class="vb-hero-cta">
+    {% if session.get('uid') %}
+      <a href="{{ url_for('web.apply') }}" class="vb-btn-primary">Start New Assessment →</a>
+    {% else %}
+      <a href="{{ url_for('web.login') }}" class="vb-btn-primary">Get Started →</a>
+    {% endif %}
+    <a href="#how-it-works" class="vb-btn-ghost">How it works</a>
+  </div>
+</section>
+
+<section class="vb-features" id="how-it-works">
+  <div class="vb-feature">
+    <span class="icon">🧠</span>
+    <h3>Deep Neural Network</h3>
+    <p>A 4-layer DNN trained on 25 financial, demographic, employment and credit
+       features predicts approval likelihood in milliseconds.</p>
+  </div>
+  <div class="vb-feature">
+    <span class="icon">📊</span>
+    <h3>Explainable Risk Scoring</h3>
+    <p>The ELRS engine breaks risk into 5 interpretable pillars — Credit Health,
+       Income &amp; Stability, Assets, Debt Burden and Profile Risk.</p>
+  </div>
+  <div class="vb-feature">
+    <span class="icon">🔍</span>
+    <h3>Feature-level Attribution</h3>
+    <p>Integrated Gradients (SHAP-equivalent) shows exactly which factors pushed
+       your decision up or down — computed instantly, no waiting.</p>
+  </div>
+  <div class="vb-feature">
+    <span class="icon">💬</span>
+    <h3>AI-Generated Explanation</h3>
+    <p>A generative AI module turns the numbers into a personalised, human
+       explanation with concrete next steps.</p>
+  </div>
+  <div class="vb-feature">
+    <span class="icon">🔐</span>
+    <h3>Secure Authentication</h3>
+    <p>Firebase-backed sign-in keeps every applicant's data private and every
+       session verified.</p>
+  </div>
+  <div class="vb-feature">
+    <span class="icon">📄</span>
+    <h3>Downloadable Reports</h3>
+    <p>Export a polished, branded PDF of any assessment — decision, risk
+       breakdown and explanation — in one click.</p>
+  </div>
+</section>
+{% endblock %}

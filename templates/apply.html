@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="vb-container">
+  <div class="vb-page-head">
+    <div>
+      <h1>New Loan Assessment</h1>
+      <p>Fill in the applicant&#8217;s details below. Prediction, risk scoring and explanation
+         typically complete in under a second.</p>
+    </div>
+  </div>
+
+  <div class="vb-card vb-card-pad">
+    <form id="loan-form">
+
+      <div class="vb-section-title">Personal Information</div>
+      <div class="vb-form-grid">
+        <div class="vb-field"><label>Age</label><input type="number" name="Age" min="18" max="80" value="30" required></div>
+        <div class="vb-field"><label>Gender</label>
+          <select name="Gender"><option>Male</option><option>Female</option><option>Other</option></select>
+        </div>
+        <div class="vb-field"><label>Marital Status</label>
+          <select name="MaritalStatus"><option>Single</option><option>Married</option><option>Divorced</option></select>
+        </div>
+        <div class="vb-field"><label>Education</label>
+          <select name="Education"><option>Bachelor</option><option>Master</option><option>PhD</option><option>Diploma</option><option>High School</option></select>
+        </div>
+        <div class="vb-field"><label>Nationality</label>
+          <select name="Nationality"><option>India</option><option>USA</option><option>UK</option><option>UAE</option><option>Singapore</option><option>Australia</option><option>Canada</option></select>
+        </div>
+        <div class="vb-field"><label>Region</label>
+          <select name="Region"><option>Urban</option><option>Semi-Urban</option><option>Rural</option></select>
+        </div>
+        <div class="vb-field"><label>Dependents</label><input type="number" name="Dependents" min="0" max="10" value="0" required></div>
+      </div>
+
+      <div class="vb-section-title">Employment Details</div>
+      <div class="vb-form-grid">
+        <div class="vb-field"><label>Employment Type</label>
+          <select name="EmploymentType"><option>Salaried</option><option>Government</option><option>Self-Employed</option><option>Business</option><option>Contract</option></select>
+        </div>
+        <div class="vb-field"><label>Industry Sector</label>
+          <select name="IndustrySector"><option>IT</option><option>Finance</option><option>Healthcare</option><option>Education</option><option>Manufacturing</option><option>Retail</option><option>Agriculture</option></select>
+        </div>
+        <div class="vb-field"><label>Years of Experience</label><input type="number" name="YearsExperience" min="0" max="45" value="5" required></div>
+        <div class="vb-field"><label>Current Job Duration (months)</label><input type="number" name="CurrentJobDuration" min="0" max="480" value="24" required></div>
+      </div>
+
+      <div class="vb-section-title">Financial Profile</div>
+      <div class="vb-form-grid">
+        <div class="vb-field"><label>Monthly Income (&#8377;)</label><input type="number" name="MonthlyIncome" min="0" value="60000" required></div>
+        <div class="vb-field"><label>Monthly Expenses (&#8377;)</label><input type="number" name="MonthlyExpenses" min="0" value="25000" required></div>
+        <div class="vb-field"><label>Savings Balance (&#8377;)</label><input type="number" name="SavingsBalance" min="0" value="200000" required></div>
+        <div class="vb-field"><label>Investment Value (&#8377;)</label><input type="number" name="InvestmentValue" min="0" value="100000" required></div>
+        <div class="vb-field"><label>Existing EMI (&#8377;)</label><input type="number" name="ExistingEMI" min="0" value="5000" required></div>
+        <div class="vb-field"><label>Existing Loans (count)</label><input type="number" name="ExistingLoans" min="0" max="10" value="1" required></div>
+      </div>
+
+      <div class="vb-section-title">Credit History</div>
+      <div class="vb-form-grid">
+        <div class="vb-field"><label>Credit Score</label><input type="number" name="CreditScore" min="300" max="900" value="720" required></div>
+        <div class="vb-field"><label>Past Defaults (count)</label><input type="number" name="PastDefaults" min="0" max="10" value="0" required></div>
+        <div class="vb-field"><label>Late Payments (count)</label><input type="number" name="LatePayments" min="0" max="20" value="1" required></div>
+      </div>
+
+      <div class="vb-section-title">Loan Information</div>
+      <div class="vb-form-grid">
+        <div class="vb-field"><label>Loan Amount (&#8377;)</label><input type="number" name="LoanAmount" min="1000" value="1000000" required></div>
+        <div class="vb-field"><label>Loan Purpose</label>
+          <select name="LoanPurpose"><option>Home</option><option>Vehicle</option><option>Education</option><option>Personal</option><option>Medical</option><option>Business</option></select>
+        </div>
+        <div class="vb-field"><label>Loan Tenure (months)</label><input type="number" name="LoanTenure" min="3" max="360" value="60" required></div>
+        <div class="vb-field"><label>Collateral Value (&#8377;)</label><input type="number" name="CollateralValue" min="0" value="1500000" required></div>
+        <div class="vb-field"><label>Guarantor Available</label>
+          <select name="GuarantorAvailable"><option>Yes</option><option>No</option></select>
+        </div>
+      </div>
+
+      <div class="vb-submit-row">
+        <span class="vb-loading-text" id="loading-text"></span>
+        <button type="submit" class="vb-btn-primary" id="submit-btn">Run Assessment &#8594;</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const form = document.getElementById("loan-form");
+  const submitBtn = document.getElementById("submit-btn");
+  const loadingText = document.getElementById("loading-text");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form).entries());
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="vb-spinner"></span> Analyzing...';
+    loadingText.textContent = "Running DNN inference, ELRS scoring & generating explanation...";
+
+    try {
+      const resp = await fetch("/api/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const body = await resp.json();
+      if (!resp.ok) throw new Error(body.error || "Prediction failed");
+      window.location.href = "/result/" + body.token;
+    } catch (err) {
+      loadingText.textContent = "";
+      alert("Something went wrong: " + err.message);
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Run Assessment \u2192";
+    }
+  });
+</script>
+{% endblock %}

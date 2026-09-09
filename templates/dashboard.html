@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — VittaBodh{% endblock %}
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+{% endblock %}
+{% block content %}
+<div class="vb-container">
+
+  <!-- Header -->
+  <div class="vb-page-head">
+    <div>
+      <h1>Welcome{{ ', ' + user.name if user and user.name else '' }} ??</h1>
+      <p>Your explainable loan assessment hub. Run assessments, review history, and track trends.</p>
+    </div>
+    <a href="{{ url_for('web.apply') }}" class="vb-btn-primary">+ New Assessment</a>
+  </div>
+
+  <!-- Personal Stats -->
+  <div class="vb-stat-grid" id="stat-grid">
+    <div class="vb-card vb-stat">
+      <div class="label">Total Assessments</div>
+      <div class="value" id="stat-total">—</div>
+    </div>
+    <div class="vb-card vb-stat">
+      <div class="label">Approved</div>
+      <div class="value vb-green" id="stat-approved">—</div>
+    </div>
+    <div class="vb-card vb-stat">
+      <div class="label">Rejected</div>
+      <div class="value vb-red" id="stat-rejected">—</div>
+    </div>
+    <div class="vb-card vb-stat">
+      <div class="label">Avg ELRS Score</div>
+      <div class="value" id="stat-elrs">—</div>
+    </div>
+  </div>
+
+  <!-- Main content grid -->
+  <div class="vb-dash-grid">
+
+    <!-- Recent Assessments -->
+    <div class="vb-card vb-card-pad">
+      <div class="vb-card-header">
+        <h3>Recent Assessments</h3>
+        <a href="{{ url_for('web.history_page') }}" class="vb-link-sm">View all ?</a>
+      </div>
+      {% if history %}
+        <div class="vb-history-list">
+          {% for h in history %}
+          <a href="{{ url_for('web.result_page', token=h.token) }}" class="vb-history-row">
+            <div class="vb-history-left">
+              <span class="vb-badge {{ 'approved' if h.decision == 'Approved' else 'rejected' }}">
+                {{ h.decision }}
+              </span>
+              <span class="vb-history-date">{{ h.timestamp[:10] if h.timestamp else 'N/A' }}</span>
+            </div>
+            <div class="vb-history-right">
+              <span class="vb-history-elrs">ELRS {{ h.elrs_total }}/100</span>
+              <span class="vb-history-prob">{{ h.approval_probability }}%</span>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="vb-empty-state">
+          <span class="icon">??</span>
+          <p>No assessments yet. <a href="{{ url_for('web.apply') }}">Run your first one ?</a></p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Approval Rate Chart -->
+    <div class="vb-card vb-card-pad">
+      <div class="vb-card-header">
+        <h3>Approval Rate</h3>
+      </div>
+      <div class="vb-chart-wrap" id="chart-wrap">
+        <canvas id="approvalChart" width="220" height="220"></canvas>
+        <div class="vb-chart-center" id="chart-center-text">—</div>
+      </div>
+      <div class="vb-chart-legend">
+        <span class="dot green"></span> Approved
+        <span class="dot red"></span> Rejected
+      </div>
+    </div>
+
+  </div>
+
+  <!-- How it works -->
+  <div class="vb-card vb-card-pad vb-how-it-works">
+    <h3 style="margin-top:0">How an assessment works</h3>
+    <div class="vb-steps">
+      <div class="vb-step"><span class="step-num">1</span><p>Submit 25 applicant fields — financial, demographic, employment, credit.</p></div>
+      <div class="vb-step"><span class="step-num">2</span><p>The DNN predicts approval probability in milliseconds.</p></div>
+      <div class="vb-step"><span class="step-num">3</span><p>ELRS scores risk across 5 interpretable pillars.</p></div>
+      <div class="vb-step"><span class="step-num">4</span><p>Integrated Gradients identifies the features that mattered most.</p></div>
+      <div class="vb-step"><span class="step-num">5</span><p>Gemini AI writes a personalised explanation with actionable next steps.</p></div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let approvalChart = null;
+
+  async function loadStats() {
+    try {
+      const resp = await fetch("/api/history");
+      if (!resp.ok) return;
+      const history = await resp.json();
+
+      const total = history.length;
+      const approved = history.filter(h => h.decision === "Approved").length;
+      const rejected = total - approved;
+      const avgElrs = total > 0
+        ? (history.reduce((s, h) => s + (h.elrs_total || 0), 0) / total).toFixed(1)
+        : "—";
+
+      document.getElementById("stat-total").textContent = total;
+      document.getElementById("stat-approved").textContent = approved;
+      document.getElementById("stat-rejected").textContent = rejected;
+      document.getElementById("stat-elrs").textContent = total > 0 ? avgElrs : "—";
+
+      const rate = total > 0 ? Math.round(approved / total * 100) : 0;
+      document.getElementById("chart-center-text").textContent = total > 0 ? rate + "%" : "No data";
+
+      const ctx = document.getElementById("approvalChart").getContext("2d");
+      if (approvalChart) approvalChart.destroy();
+
+      if (total === 0) {
+        document.getElementById("chart-wrap").innerHTML =
+          '<div class="vb-empty-state" style="padding:40px 0"><span class="icon">??</span><p>No data yet</p></div>';
+        return;
+      }
+
+      approvalChart = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+          labels: ["Approved", "Rejected"],
+          datasets: [{
+            data: [approved, rejected],
+            backgroundColor: ["rgba(47,209,128,0.85)", "rgba(255,107,107,0.85)"],
+            borderColor: ["#1A1F3A", "#1A1F3A"],
+            borderWidth: 3,
+            hoverOffset: 6,
+          }],
+        },
+        options: {
+          cutout: "72%",
+          plugins: { legend: { display: false }, tooltip: { callbacks: {
+            label: (ctx) => ` ${ctx.label}: ${ctx.raw} (${Math.round(ctx.raw/total*100)}%)`
+          }}},
+          animation: { animateRotate: true, duration: 800 },
+        },
+      });
+    } catch (e) {
+      console.error("Failed to load stats:", e);
+    }
+  }
+
+  loadStats();
+</script>
+{% endblock %}

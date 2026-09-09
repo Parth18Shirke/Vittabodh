@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% block title %}Admin — VittaBodh{% endblock %}
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+{% endblock %}
+{% block content %}
+<div class="vb-container">
+  <div class="vb-page-head">
+    <div>
+      <h1>? Admin Analytics</h1>
+      <p>Platform-wide prediction statistics and model performance metrics.</p>
+    </div>
+    <button class="vb-btn-ghost" onclick="loadStats()">? Refresh</button>
+  </div>
+
+  <!-- Platform Stats -->
+  <div class="vb-stat-grid" id="admin-stat-grid">
+    <div class="vb-card vb-stat">
+      <div class="label">Total Predictions</div>
+      <div class="value" id="as-total">—</div>
+    </div>
+    <div class="vb-card vb-stat">
+      <div class="label">Approved</div>
+      <div class="value vb-green" id="as-approved">—</div>
+    </div>
+    <div class="vb-card vb-stat">
+      <div class="label">Rejected</div>
+      <div class="value vb-red" id="as-rejected">—</div>
+    </div>
+    <div class="vb-card vb-stat">
+      <div class="label">Approval Rate</div>
+      <div class="value" id="as-rate">—</div>
+    </div>
+  </div>
+
+  <!-- Model Performance -->
+  {% if model_metrics %}
+  <div class="vb-card vb-card-pad" style="margin-bottom:20px">
+    <h3 style="margin-top:0">Model Performance (Test Set)</h3>
+    <div class="vb-stat-grid" style="margin-bottom:0">
+      <div class="vb-stat" style="padding:12px 0">
+        <div class="label">Accuracy</div>
+        <div class="value">{{ (model_metrics.accuracy * 100) | round(2) }}%</div>
+      </div>
+      <div class="vb-stat" style="padding:12px 0">
+        <div class="label">Precision</div>
+        <div class="value">{{ (model_metrics.precision * 100) | round(2) }}%</div>
+      </div>
+      <div class="vb-stat" style="padding:12px 0">
+        <div class="label">Recall</div>
+        <div class="value">{{ (model_metrics.recall * 100) | round(2) }}%</div>
+      </div>
+      <div class="vb-stat" style="padding:12px 0">
+        <div class="label">F1 Score</div>
+        <div class="value">{{ (model_metrics.f1_score * 100) | round(2) }}%</div>
+      </div>
+      {% if model_metrics.roc_auc %}
+      <div class="vb-stat" style="padding:12px 0">
+        <div class="label">ROC-AUC</div>
+        <div class="value">{{ (model_metrics.roc_auc * 100) | round(2) }}%</div>
+      </div>
+      {% endif %}
+      <div class="vb-stat" style="padding:12px 0">
+        <div class="label">Test Set Size</div>
+        <div class="value">{{ model_metrics.test_size }}</div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Charts Row -->
+  <div class="vb-admin-charts">
+    <div class="vb-card vb-card-pad">
+      <h3 style="margin-top:0">Daily Predictions (Last 7 Days)</h3>
+      <canvas id="dailyChart" height="180"></canvas>
+    </div>
+    <div class="vb-card vb-card-pad">
+      <h3 style="margin-top:0">ELRS Band Distribution</h3>
+      <canvas id="bandChart" height="180"></canvas>
+      <div id="bandLegend" class="vb-chart-legend" style="margin-top:12px;flex-wrap:wrap;gap:8px;"></div>
+    </div>
+  </div>
+
+  <!-- Recent Predictions Table -->
+  <div class="vb-card" style="margin-top:20px">
+    <div class="vb-card-pad" style="padding-bottom:8px">
+      <h3 style="margin:0">Recent Predictions</h3>
+    </div>
+    <div class="vb-table-wrap">
+      <table class="vb-table" id="recent-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Decision</th>
+            <th>Approval Prob.</th>
+            <th>ELRS Score</th>
+            <th>ELRS Band</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="recent-tbody">
+          <tr><td colspan="6" style="text-align:center;color:var(--text-low);padding:30px">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const BAND_COLORS = {
+    "Low Risk":      "rgba(47,209,128,0.85)",
+    "Moderate Risk": "rgba(255,193,94,0.85)",
+    "Elevated Risk": "rgba(255,107,107,0.7)",
+    "High Risk":     "rgba(180,40,40,0.85)",
+  };
+
+  let dailyChart = null;
+  let bandChart = null;
+
+  async function loadStats() {
+    try {
+      const resp = await fetch("/api/admin/stats");
+      if (!resp.ok) { alert("Failed to load stats"); return; }
+      const s = await resp.json();
+
+      document.getElementById("as-total").textContent = s.total;
+      document.getElementById("as-approved").textContent = s.approved;
+      document.getElementById("as-rejected").textContent = s.rejected;
+      document.getElementById("as-rate").textContent = s.approval_rate + "%";
+
+      // Daily chart
+      const days = Object.keys(s.daily_counts || {});
+      const counts = Object.values(s.daily_counts || {});
+      const dc = document.getElementById("dailyChart").getContext("2d");
+      if (dailyChart) dailyChart.destroy();
+      dailyChart = new Chart(dc, {
+        type: "bar",
+        data: {
+          labels: days.map(d => d.slice(5)),
+          datasets: [{
+            label: "Predictions",
+            data: counts,
+            backgroundColor: "rgba(124,92,255,0.7)",
+            borderRadius: 6,
+          }],
+        },
+        options: {
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: "#B9B6D6" }, grid: { color: "#252B4A" } },
+            y: { ticks: { color: "#B9B6D6", stepSize: 1 }, grid: { color: "#252B4A" }, beginAtZero: true },
+          },
+        },
+      });
+
+      // Band doughnut
+      const bands = Object.keys(s.band_counts || {});
+      const bandVals = Object.values(s.band_counts || {});
+      const colors = bands.map(b => BAND_COLORS[b] || "rgba(180,180,200,0.7)");
+      const bc = document.getElementById("bandChart").getContext("2d");
+      if (bandChart) bandChart.destroy();
+      bandChart = new Chart(bc, {
+        type: "doughnut",
+        data: {
+          labels: bands,
+          datasets: [{ data: bandVals, backgroundColor: colors, borderColor: "#1A1F3A", borderWidth: 2 }],
+        },
+        options: {
+          cutout: "65%",
+          plugins: { legend: { display: false } },
+        },
+      });
+
+      // Band legend
+      const legend = document.getElementById("bandLegend");
+      legend.innerHTML = bands.map((b, i) =>
+        `<span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-mid)">
+           <span style="width:12px;height:12px;border-radius:3px;background:${colors[i]};display:inline-block"></span>
+           ${b}: ${bandVals[i]}
+         </span>`
+      ).join("");
+
+      // Recent table
+      const tbody = document.getElementById("recent-tbody");
+      tbody.innerHTML = (s.recent || []).map(h => `
+        <tr>
+          <td class="vb-cell-date">${(h.timestamp || "").slice(0, 10)}</td>
+          <td><span class="vb-badge ${h.decision === "Approved" ? "approved" : "rejected"}">${h.decision}</span></td>
+          <td><span class="mono">${h.approval_probability}%</span></td>
+          <td><span class="mono">${h.elrs_total}/100</span></td>
+          <td><span class="vb-band-tag vb-band-${(h.elrs_band || "").toLowerCase().replace(/ /g,"-")}">${h.elrs_band || "—"}</span></td>
+          <td>
+            <a href="/result/${h.token}" class="vb-btn-ghost-sm">View</a>
+            <a href="/api/report/${h.token}.pdf" class="vb-btn-ghost-sm" style="margin-left:6px">PDF</a>
+          </td>
+        </tr>
+      `).join("") || '<tr><td colspan="6" style="text-align:center;color:var(--text-low);padding:30px">No predictions yet</td></tr>';
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  loadStats();
+</script>
+{% endblock %}

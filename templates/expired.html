@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="vb-container" style="text-align:center;padding-top:100px;">
+  <h1>This result has expired</h1>
+  <p style="color:var(--text-mid);margin-bottom:26px;">Results are cached temporarily. Please run a new assessment.</p>
+  <a href="{{ url_for('web.apply') }}" class="vb-btn-primary">Run New Assessment</a>
+</div>
+{% endblock %}

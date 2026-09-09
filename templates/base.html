@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0B0E1F">
+<title>{% block title %}VittaBodh — Explainable AI Loan Assessment{% endblock %}</title>
+<meta name="description" content="{% block description %}VittaBodh: AI-powered, fully explainable loan approval platform using Deep Neural Networks and ELRS risk scoring.{% endblock %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+{% block head %}{% endblock %}
+</head>
+<body>
+<nav class="vb-nav">
+  <a href="{{ url_for('web.landing') }}" class="vb-brand">
+    <span class="vb-logo-dot"></span> VittaBodh
+  </a>
+  <div class="vb-nav-links">
+    {% if session.get('uid') %}
+      <a href="{{ url_for('web.dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('web.apply') }}">New Assessment</a>
+      <a href="{{ url_for('web.history_page') }}">History</a>
+      {% if session.get('is_admin') %}
+        <a href="{{ url_for('web.admin') }}" class="vb-nav-admin">? Admin</a>
+      {% endif %}
+      <span class="vb-nav-user">{{ session.get('user', {}).get('name', '') }}</span>
+      <a href="{{ url_for('web.logout') }}" class="vb-btn-ghost-sm">Sign out</a>
+    {% else %}
+      <a href="{{ url_for('web.login') }}" class="vb-btn-primary-sm">Sign in</a>
+    {% endif %}
+  </div>
+</nav>
+<main>
+  {% block content %}{% endblock %}
+</main>
+<footer class="vb-footer">
+  <span>VittaBodh — Explainable AI Framework for Loan Approval &amp; Rejection Analysis</span>
+  <span class="vb-footer-muted">Deep Learning &middot; ELRS &middot; Integrated Gradients &middot; Gemini AI</span>
+</footer>
+{% block scripts %}{% endblock %}
+<script>
+  // PWA service worker registration
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/static/sw.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

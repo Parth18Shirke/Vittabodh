@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="vb-auth-wrap">
+  <div class="vb-card vb-auth-card">
+
+    <!-- Email verification banner (hidden by default) -->
+    <div class="vb-verify-banner" id="verify-banner" style="display:none;">
+      <span>&#9993;</span>
+      <div>
+        <strong>Check your inbox!</strong>
+        <p>A verification link has been sent to your email. Please verify before signing in.</p>
+      </div>
+    </div>
+
+    <h2 id="auth-title">Welcome back</h2>
+    <p class="sub" id="auth-sub">Sign in to access your loan assessments.</p>
+
+    <button class="vb-btn-google" id="google-btn">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6 29.5 4 24 4c-7.5 0-14 4.2-17.7 10.7z"/><path fill="#4CAF50" d="M24 44c5.4 0 10.3-1.8 14.1-5l-6.5-5.4C29.5 35.4 26.9 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.6 5.1C9.9 39.6 16.4 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.6l6.5 5.4C41.6 35.7 44 30.3 44 24c0-1.2-.1-2.4-.4-3.5z"/></svg>
+      Continue with Google
+    </button>
+
+    <div class="vb-divider">or</div>
+
+    <form id="email-form">
+      <!-- Name field: only visible in signup mode -->
+      <input class="vb-input" type="text" id="fullname" placeholder="Full Name"
+             style="display:none;" autocomplete="name">
+      <input class="vb-input" type="email" id="email" placeholder="Email address" required>
+      <input class="vb-input" type="password" id="password" placeholder="Password" required>
+      <p class="vb-password-hint" id="password-hint" style="display:none;font-size:12px;color:var(--text-mid);margin:-6px 0 10px;">
+        Use at least 8 characters with a mix of letters and numbers.
+      </p>
+      <button class="vb-btn-primary" style="width:100%" type="submit" id="submit-btn">
+        <span id="submit-text">Sign in</span>
+      </button>
+    </form>
+    <div class="vb-auth-error" id="auth-error"></div>
+
+    <div class="vb-auth-switch">
+      <span id="switch-text">Don&#8217;t have an account?</span>
+      <a href="#" id="switch-link">Create one</a>
+    </div>
+  </div>
+</div>
+
+<style>
+.vb-verify-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: linear-gradient(135deg, #1e3a5f, #1a4a7a);
+  border: 1px solid #2d6aad;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  color: #e0f0ff;
+  font-size: 13.5px;
+}
+.vb-verify-banner span { font-size: 22px; line-height: 1; }
+.vb-verify-banner strong { display: block; margin-bottom: 3px; color: #fff; }
+.vb-verify-banner p { margin: 0; opacity: 0.85; }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+    updateProfile, sendEmailVerification,
+    GoogleAuthProvider, signInWithPopup
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+  const firebaseConfig = {{ firebase_config | tojson }};
+  const fbApp = initializeApp(firebaseConfig);
+  const auth = getAuth(fbApp);
+
+  let mode = "signin"; // or "signup"
+
+  const errorBox    = document.getElementById("auth-error");
+  const submitText  = document.getElementById("submit-text");
+  const submitBtn   = document.getElementById("submit-btn");
+  const nameField   = document.getElementById("fullname");
+  const pwHint      = document.getElementById("password-hint");
+  const verifyBanner= document.getElementById("verify-banner");
+
+  async function completeLogin(userCred) {
+    const idToken = await userCred.user.getIdToken();
+    const resp = await fetch("/api/session-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken }),
+    });
+    if (!resp.ok) {
+      const body = await resp.json().catch(() => ({}));
+      throw new Error(body.error || "Sign-in failed. Please try again.");
+    }
+    window.location.href = "/dashboard";
+  }
+
+  document.getElementById("switch-link").addEventListener("click", (e) => {
+    e.preventDefault();
+    mode = mode === "signin" ? "signup" : "signin";
+    const isSignup = mode === "signup";
+
+    document.getElementById("auth-title").textContent = isSignup ? "Create your account" : "Welcome back";
+    document.getElementById("auth-sub").textContent = isSignup
+      ? "Get started with explainable loan assessments."
+      : "Sign in to access your loan assessments.";
+    submitText.textContent = isSignup ? "Create account" : "Sign in";
+    document.getElementById("switch-text").textContent = isSignup ? "Already have an account?" : "Don\u2019t have an account?";
+    document.getElementById("switch-link").textContent = isSignup ? "Sign in" : "Create one";
+
+    nameField.style.display = isSignup ? "block" : "none";
+    nameField.required = isSignup;
+    pwHint.style.display = isSignup ? "block" : "none";
+    errorBox.textContent = "";
+    verifyBanner.style.display = "none";
+  });
+
+  document.getElementById("email-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errorBox.textContent = "";
+    verifyBanner.style.display = "none";
+    submitBtn.disabled = true;
+    const original = submitText.textContent;
+    submitText.innerHTML = '<span class="vb-spinner"></span>';
+
+    const email    = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const fullName = nameField.value.trim();
+
+    try {
+      if (mode === "signin") {
+        const userCred = await signInWithEmailAndPassword(auth, email, password);
+        await completeLogin(userCred);
+      } else {
+        // Sign up
+        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+
+        // Store display name
+        if (fullName) {
+          await updateProfile(userCred.user, { displayName: fullName });
+        }
+
+        // Send verification email via Firebase (no SMTP config needed)
+        await sendEmailVerification(userCred.user);
+
+        // Show verification banner instead of redirecting
+        verifyBanner.style.display = "flex";
+
+        // Switch back to sign-in mode so they can log in after verifying
+        mode = "signin";
+        document.getElementById("auth-title").textContent = "Welcome back";
+        document.getElementById("auth-sub").textContent = "Sign in to access your loan assessments.";
+        submitText.textContent = "Sign in";
+        document.getElementById("switch-text").textContent = "Don\u2019t have an account?";
+        document.getElementById("switch-link").textContent = "Create one";
+        nameField.style.display = "none";
+        nameField.required = false;
+        pwHint.style.display = "none";
+      }
+    } catch (err) {
+      errorBox.textContent = humanizeError(err.message || String(err));
+    } finally {
+      submitBtn.disabled = false;
+      submitText.textContent = original;
+    }
+  });
+
+  document.getElementById("google-btn").addEventListener("click", async () => {
+    errorBox.textContent = "";
+    try {
+      const provider = new GoogleAuthProvider();
+      const userCred = await signInWithPopup(auth, provider);
+      await completeLogin(userCred);
+    } catch (err) {
+      errorBox.textContent = humanizeError(err.message || String(err));
+    }
+  });
+
+  function humanizeError(msg) {
+    if (msg.includes("auth/invalid-credential") || msg.includes("auth/wrong-password"))
+      return "Incorrect email or password.";
+    if (msg.includes("auth/user-not-found"))
+      return "No account found with that email.";
+    if (msg.includes("auth/email-already-in-use"))
+      return "An account with that email already exists. Please sign in instead.";
+    if (msg.includes("auth/weak-password"))
+      return "Password should be at least 6 characters.";
+    if (msg.includes("auth/invalid-email"))
+      return "Please enter a valid email address.";
+    if (msg.includes("auth/too-many-requests"))
+      return "Too many attempts. Please wait a moment and try again.";
+    return msg.replace("Firebase: ", "").replace(/\(auth\/.*\)\.?/, "").trim();
+  }
+</script>
+{% endblock %}

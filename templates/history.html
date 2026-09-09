@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Assessment History — VittaBodh{% endblock %}
+{% block content %}
+<div class="vb-container">
+  <div class="vb-page-head">
+    <div>
+      <h1>Assessment History</h1>
+      <p>All your past loan assessments, newest first.</p>
+    </div>
+    <a href="{{ url_for('web.apply') }}" class="vb-btn-primary">+ New Assessment</a>
+  </div>
+
+  {% if history %}
+  <div class="vb-card">
+    <div class="vb-table-wrap">
+      <table class="vb-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Decision</th>
+            <th>Approval Prob.</th>
+            <th>ELRS Score</th>
+            <th>ELRS Band</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for h in history %}
+          <tr>
+            <td class="vb-cell-date">{{ h.timestamp[:10] if h.timestamp else 'N/A' }}</td>
+            <td>
+              <span class="vb-badge {{ 'approved' if h.decision == 'Approved' else 'rejected' }}">
+                {{ h.decision }}
+              </span>
+            </td>
+            <td>
+              <span class="mono">{{ h.approval_probability }}%</span>
+            </td>
+            <td>
+              <span class="mono">{{ h.elrs_total }}/100</span>
+            </td>
+            <td>
+              <span class="vb-band-tag vb-band-{{ h.elrs_band | lower | replace(' ', '-') }}">
+                {{ h.elrs_band }}
+              </span>
+            </td>
+            <td>
+              <div style="display:flex;gap:8px;">
+                <a href="{{ url_for('web.result_page', token=h.token) }}" class="vb-btn-ghost-sm">View</a>
+                <a href="{{ url_for('api.api_report', token=h.token) }}" class="vb-btn-ghost-sm">PDF</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <div class="vb-card vb-card-pad">
+    <div class="vb-empty-state" style="padding:60px 0">
+      <span class="icon">??</span>
+      <h3>No assessments yet</h3>
+      <p>Your loan assessment history will appear here after you run your first assessment.</p>
+      <a href="{{ url_for('web.apply') }}" class="vb-btn-primary" style="margin-top:20px;display:inline-block">
+        Run Your First Assessment ?
+      </a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
