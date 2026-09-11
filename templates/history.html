@@ -7,66 +7,50 @@
       <h1>Assessment History</h1>
       <p>All your past loan assessments, newest first.</p>
     </div>
-    <a href="{{ url_for('web.apply') }}" class="vb-btn-primary">+ New Assessment</a>
+    <a href="{{ url_for('web.apply') }}" class="vb-btn-primary">&#43; New Assessment</a>
   </div>
 
   {% if history %}
-  <div class="vb-card">
-    <div class="vb-table-wrap">
-      <table class="vb-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Decision</th>
-            <th>Approval Prob.</th>
-            <th>ELRS Score</th>
-            <th>ELRS Band</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for h in history %}
-          <tr>
-            <td class="vb-cell-date">{{ h.timestamp[:10] if h.timestamp else 'N/A' }}</td>
-            <td>
-              <span class="vb-badge {{ 'approved' if h.decision == 'Approved' else 'rejected' }}">
-                {{ h.decision }}
-              </span>
-            </td>
-            <td>
-              <span class="mono">{{ h.approval_probability }}%</span>
-            </td>
-            <td>
-              <span class="mono">{{ h.elrs_total }}/100</span>
-            </td>
-            <td>
-              <span class="vb-band-tag vb-band-{{ h.elrs_band | lower | replace(' ', '-') }}">
-                {{ h.elrs_band }}
-              </span>
-            </td>
-            <td>
-              <div style="display:flex;gap:8px;">
-                <a href="{{ url_for('web.result_page', token=h.token) }}" class="vb-btn-ghost-sm">View</a>
-                <a href="{{ url_for('api.api_report', token=h.token) }}" class="vb-btn-ghost-sm">PDF</a>
-              </div>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <div class="vb-card" style="overflow:hidden;">
+    <!-- Mobile-friendly card list -->
+    <div class="vb-history-full" style="padding:var(--space-4);">
+      {% for h in history %}
+      <div class="vb-history-row" style="align-items:center;flex-wrap:wrap;gap:var(--space-3);">
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;">
+            <span class="vb-badge {{ 'approved' if h.decision == 'Approved' else 'rejected' }}">
+              {{ h.decision }}
+            </span>
+            <span class="vb-history-date">{{ h.timestamp[:10] if h.timestamp else 'N/A' }}</span>
+            {% if h.elrs_band %}
+            <span style="font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--text-subtle);">{{ h.elrs_band }}</span>
+            {% endif %}
+          </div>
+          <div style="display:flex;gap:var(--space-6);margin-top:6px;font-size:13px;color:var(--text-muted);">
+            <span><strong style="color:var(--text-secondary);">ELRS:</strong> {{ h.elrs_total }}/100</span>
+            <span><strong style="color:var(--text-secondary);">Prob:</strong> {{ h.approval_probability }}%</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:var(--space-2);flex-shrink:0;">
+          <a href="{{ url_for('web.result_page', token=h.token) }}" class="vb-btn-ghost-sm">View</a>
+          <a href="{{ url_for('api.api_report', token=h.token) }}" class="vb-btn-ghost-sm">PDF</a>
+        </div>
+      </div>
+      {% endfor %}
     </div>
   </div>
+
   {% else %}
   <div class="vb-card vb-card-pad">
     <div class="vb-empty-state" style="padding:60px 0">
-      <span class="icon">??</span>
-      <h3>No assessments yet</h3>
+      <span class="icon">&#128202;</span>
+      <h3 style="font-family:var(--font-headline);font-size:18px;font-weight:700;margin-bottom:8px;">No assessments yet</h3>
       <p>Your loan assessment history will appear here after you run your first assessment.</p>
-      <a href="{{ url_for('web.apply') }}" class="vb-btn-primary" style="margin-top:20px;display:inline-block">
-        Run Your First Assessment ?
+      <a href="{{ url_for('web.apply') }}" class="vb-btn-primary" style="margin-top:20px;display:inline-flex;">
+        Run Your First Assessment &rarr;
       </a>
     </div>
   </div>
   {% endif %}
 </div>
-{% endblock %}
+{% endblock %}

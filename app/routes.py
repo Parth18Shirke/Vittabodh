@@ -180,6 +180,16 @@ def logout():
     return redirect(url_for("web.landing"))
 
 
+@web_bp.route("/privacy")
+def privacy():
+    return render_template("privacy.html")
+
+
+@web_bp.route("/terms")
+def terms():
+    return render_template("terms.html")
+
+
 # -- API: auth --------------------------------------------------------------
 
 @api_bp.route("/session-login", methods=["POST"])

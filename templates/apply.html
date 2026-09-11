@@ -1,94 +1,406 @@
 {% extends "base.html" %}
+{% block title %}New Loan Assessment — VittaBodh{% endblock %}
 {% block content %}
 <div class="vb-container">
+
   <div class="vb-page-head">
     <div>
       <h1>New Loan Assessment</h1>
-      <p>Fill in the applicant&#8217;s details below. Prediction, risk scoring and explanation
-         typically complete in under a second.</p>
+      <p>Fill in the applicant's details below. Prediction, risk scoring, and explanation typically complete in under a second.</p>
+    </div>
+  </div>
+
+  <!-- Step Progress Indicator -->
+  <div class="vb-stepper" id="stepper">
+    <div class="vb-stepper-item active" id="step-item-1">
+      <span class="vb-stepper-num">1</span>
+      <span class="vb-stepper-label">Personal</span>
+    </div>
+    <div class="vb-stepper-line" id="line-1"></div>
+    <div class="vb-stepper-item" id="step-item-2">
+      <span class="vb-stepper-num">2</span>
+      <span class="vb-stepper-label">Employment</span>
+    </div>
+    <div class="vb-stepper-line" id="line-2"></div>
+    <div class="vb-stepper-item" id="step-item-3">
+      <span class="vb-stepper-num">3</span>
+      <span class="vb-stepper-label">Financial</span>
+    </div>
+    <div class="vb-stepper-line" id="line-3"></div>
+    <div class="vb-stepper-item" id="step-item-4">
+      <span class="vb-stepper-num">4</span>
+      <span class="vb-stepper-label">Loan Details</span>
     </div>
   </div>
 
   <div class="vb-card vb-card-pad">
     <form id="loan-form">
 
-      <div class="vb-section-title">Personal Information</div>
-      <div class="vb-form-grid">
-        <div class="vb-field"><label>Age</label><input type="number" name="Age" min="18" max="80" value="30" required></div>
-        <div class="vb-field"><label>Gender</label>
-          <select name="Gender"><option>Male</option><option>Female</option><option>Other</option></select>
+      <!-- STEP 1: Personal Information -->
+      <div class="vb-form-step active" id="step-1">
+        <div class="vb-form-section-title">&#128100; Personal Information</div>
+        <div class="vb-form-grid">
+          <div class="vb-field">
+            <label>Age</label>
+            <input type="number" name="Age" id="Age" min="18" max="80" value="30" required
+                   placeholder="18 – 80">
+            <span class="vb-field-hint">Must be between 18 and 80 years</span>
+          </div>
+          <div class="vb-field">
+            <label>Gender</label>
+            <select name="Gender" id="Gender">
+              <option>Male</option>
+              <option>Female</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="vb-field">
+            <label>Marital Status</label>
+            <select name="MaritalStatus" id="MaritalStatus">
+              <option>Single</option>
+              <option>Married</option>
+              <option>Divorced</option>
+            </select>
+          </div>
+          <div class="vb-field">
+            <label>Education</label>
+            <select name="Education" id="Education">
+              <option>Bachelor</option>
+              <option>Master</option>
+              <option>PhD</option>
+              <option>Diploma</option>
+              <option>High School</option>
+            </select>
+          </div>
+          <div class="vb-field">
+            <label>Nationality</label>
+            <select name="Nationality" id="Nationality">
+              <option>India</option>
+              <option>USA</option>
+              <option>UK</option>
+              <option>UAE</option>
+              <option>Singapore</option>
+              <option>Australia</option>
+              <option>Canada</option>
+            </select>
+          </div>
+          <div class="vb-field">
+            <label>Region</label>
+            <select name="Region" id="Region">
+              <option>Urban</option>
+              <option>Semi-Urban</option>
+              <option>Rural</option>
+            </select>
+          </div>
+          <div class="vb-field">
+            <label>Dependents</label>
+            <input type="number" name="Dependents" id="Dependents" min="0" max="10" value="0" required
+                   placeholder="0 – 10">
+            <span class="vb-field-hint">Number of financial dependents</span>
+          </div>
         </div>
-        <div class="vb-field"><label>Marital Status</label>
-          <select name="MaritalStatus"><option>Single</option><option>Married</option><option>Divorced</option></select>
+        <div class="vb-form-nav">
+          <span></span>
+          <button type="button" class="vb-btn-primary" onclick="goStep(2)">Next: Employment &rarr;</button>
         </div>
-        <div class="vb-field"><label>Education</label>
-          <select name="Education"><option>Bachelor</option><option>Master</option><option>PhD</option><option>Diploma</option><option>High School</option></select>
-        </div>
-        <div class="vb-field"><label>Nationality</label>
-          <select name="Nationality"><option>India</option><option>USA</option><option>UK</option><option>UAE</option><option>Singapore</option><option>Australia</option><option>Canada</option></select>
-        </div>
-        <div class="vb-field"><label>Region</label>
-          <select name="Region"><option>Urban</option><option>Semi-Urban</option><option>Rural</option></select>
-        </div>
-        <div class="vb-field"><label>Dependents</label><input type="number" name="Dependents" min="0" max="10" value="0" required></div>
       </div>
 
-      <div class="vb-section-title">Employment Details</div>
-      <div class="vb-form-grid">
-        <div class="vb-field"><label>Employment Type</label>
-          <select name="EmploymentType"><option>Salaried</option><option>Government</option><option>Self-Employed</option><option>Business</option><option>Contract</option></select>
+      <!-- STEP 2: Employment Details -->
+      <div class="vb-form-step" id="step-2">
+        <div class="vb-form-section-title">&#128188; Employment Details</div>
+        <div class="vb-form-grid">
+          <div class="vb-field">
+            <label>Employment Type</label>
+            <select name="EmploymentType" id="EmploymentType">
+              <option>Salaried</option>
+              <option>Government</option>
+              <option>Self-Employed</option>
+              <option>Business</option>
+              <option>Contract</option>
+            </select>
+          </div>
+          <div class="vb-field">
+            <label>Industry Sector</label>
+            <select name="IndustrySector" id="IndustrySector">
+              <option>IT</option>
+              <option>Finance</option>
+              <option>Healthcare</option>
+              <option>Education</option>
+              <option>Manufacturing</option>
+              <option>Retail</option>
+              <option>Agriculture</option>
+            </select>
+          </div>
+          <div class="vb-field">
+            <label>Years of Experience</label>
+            <input type="number" name="YearsExperience" id="YearsExperience" min="0" max="45" value="5" required
+                   placeholder="0 – 45">
+            <span class="vb-field-hint">Total years of professional experience</span>
+          </div>
+          <div class="vb-field">
+            <label>Current Job Duration (months)</label>
+            <input type="number" name="CurrentJobDuration" id="CurrentJobDuration" min="0" max="480" value="24" required
+                   placeholder="0 – 480">
+            <span class="vb-field-hint">Time spent at current employer</span>
+          </div>
         </div>
-        <div class="vb-field"><label>Industry Sector</label>
-          <select name="IndustrySector"><option>IT</option><option>Finance</option><option>Healthcare</option><option>Education</option><option>Manufacturing</option><option>Retail</option><option>Agriculture</option></select>
+        <div class="vb-form-nav">
+          <button type="button" class="vb-btn-ghost" onclick="goStep(1)">&larr; Back</button>
+          <button type="button" class="vb-btn-primary" onclick="goStep(3)">Next: Financial Profile &rarr;</button>
         </div>
-        <div class="vb-field"><label>Years of Experience</label><input type="number" name="YearsExperience" min="0" max="45" value="5" required></div>
-        <div class="vb-field"><label>Current Job Duration (months)</label><input type="number" name="CurrentJobDuration" min="0" max="480" value="24" required></div>
       </div>
 
-      <div class="vb-section-title">Financial Profile</div>
-      <div class="vb-form-grid">
-        <div class="vb-field"><label>Monthly Income (&#8377;)</label><input type="number" name="MonthlyIncome" min="0" value="60000" required></div>
-        <div class="vb-field"><label>Monthly Expenses (&#8377;)</label><input type="number" name="MonthlyExpenses" min="0" value="25000" required></div>
-        <div class="vb-field"><label>Savings Balance (&#8377;)</label><input type="number" name="SavingsBalance" min="0" value="200000" required></div>
-        <div class="vb-field"><label>Investment Value (&#8377;)</label><input type="number" name="InvestmentValue" min="0" value="100000" required></div>
-        <div class="vb-field"><label>Existing EMI (&#8377;)</label><input type="number" name="ExistingEMI" min="0" value="5000" required></div>
-        <div class="vb-field"><label>Existing Loans (count)</label><input type="number" name="ExistingLoans" min="0" max="10" value="1" required></div>
-      </div>
-
-      <div class="vb-section-title">Credit History</div>
-      <div class="vb-form-grid">
-        <div class="vb-field"><label>Credit Score</label><input type="number" name="CreditScore" min="300" max="900" value="720" required></div>
-        <div class="vb-field"><label>Past Defaults (count)</label><input type="number" name="PastDefaults" min="0" max="10" value="0" required></div>
-        <div class="vb-field"><label>Late Payments (count)</label><input type="number" name="LatePayments" min="0" max="20" value="1" required></div>
-      </div>
-
-      <div class="vb-section-title">Loan Information</div>
-      <div class="vb-form-grid">
-        <div class="vb-field"><label>Loan Amount (&#8377;)</label><input type="number" name="LoanAmount" min="1000" value="1000000" required></div>
-        <div class="vb-field"><label>Loan Purpose</label>
-          <select name="LoanPurpose"><option>Home</option><option>Vehicle</option><option>Education</option><option>Personal</option><option>Medical</option><option>Business</option></select>
+      <!-- STEP 3: Financial Profile -->
+      <div class="vb-form-step" id="step-3">
+        <div class="vb-form-section-title">&#128200; Financial Profile</div>
+        <div class="vb-form-grid">
+          <div class="vb-field">
+            <label>Monthly Income (&#8377;)</label>
+            <div class="vb-input-currency">
+              <span class="vb-input-currency-prefix">&#8377;</span>
+              <input type="number" name="MonthlyIncome" id="MonthlyIncome" min="0" value="60000" required
+                     placeholder="e.g. 60000">
+            </div>
+            <span class="vb-field-hint" id="hint-MonthlyIncome"></span>
+          </div>
+          <div class="vb-field">
+            <label>Monthly Expenses (&#8377;)</label>
+            <div class="vb-input-currency">
+              <span class="vb-input-currency-prefix">&#8377;</span>
+              <input type="number" name="MonthlyExpenses" id="MonthlyExpenses" min="0" value="25000" required
+                     placeholder="e.g. 25000">
+            </div>
+            <span class="vb-field-hint" id="hint-MonthlyExpenses"></span>
+          </div>
+          <div class="vb-field">
+            <label>Savings Balance (&#8377;)</label>
+            <div class="vb-input-currency">
+              <span class="vb-input-currency-prefix">&#8377;</span>
+              <input type="number" name="SavingsBalance" id="SavingsBalance" min="0" value="200000" required
+                     placeholder="e.g. 200000">
+            </div>
+            <span class="vb-field-hint" id="hint-SavingsBalance"></span>
+          </div>
+          <div class="vb-field">
+            <label>Investment Value (&#8377;)</label>
+            <div class="vb-input-currency">
+              <span class="vb-input-currency-prefix">&#8377;</span>
+              <input type="number" name="InvestmentValue" id="InvestmentValue" min="0" value="100000" required
+                     placeholder="e.g. 100000">
+            </div>
+            <span class="vb-field-hint" id="hint-InvestmentValue"></span>
+          </div>
+          <div class="vb-field">
+            <label>Existing EMI (&#8377;/month)</label>
+            <div class="vb-input-currency">
+              <span class="vb-input-currency-prefix">&#8377;</span>
+              <input type="number" name="ExistingEMI" id="ExistingEMI" min="0" value="5000" required
+                     placeholder="e.g. 5000">
+            </div>
+            <span class="vb-field-hint" id="hint-ExistingEMI"></span>
+          </div>
+          <div class="vb-field">
+            <label>Existing Loans (count)</label>
+            <input type="number" name="ExistingLoans" id="ExistingLoans" min="0" max="10" value="1" required
+                   placeholder="0 – 10">
+            <span class="vb-field-hint">Total number of active loans</span>
+          </div>
         </div>
-        <div class="vb-field"><label>Loan Tenure (months)</label><input type="number" name="LoanTenure" min="3" max="360" value="60" required></div>
-        <div class="vb-field"><label>Collateral Value (&#8377;)</label><input type="number" name="CollateralValue" min="0" value="1500000" required></div>
-        <div class="vb-field"><label>Guarantor Available</label>
-          <select name="GuarantorAvailable"><option>Yes</option><option>No</option></select>
+
+        <div class="vb-form-section-title" style="margin-top:var(--space-6);">&#128179; Credit History</div>
+        <div class="vb-form-grid">
+          <div class="vb-field">
+            <label>Credit Score</label>
+            <input type="number" name="CreditScore" id="CreditScore" min="300" max="900" value="720" required
+                   placeholder="300 – 900">
+            <span class="vb-field-hint">CIBIL / bureau credit score</span>
+          </div>
+          <div class="vb-field">
+            <label>Past Defaults (count)</label>
+            <input type="number" name="PastDefaults" id="PastDefaults" min="0" max="10" value="0" required
+                   placeholder="0 – 10">
+            <span class="vb-field-hint">Number of historical loan defaults</span>
+          </div>
+          <div class="vb-field">
+            <label>Late Payments (count)</label>
+            <input type="number" name="LatePayments" id="LatePayments" min="0" max="20" value="1" required
+                   placeholder="0 – 20">
+            <span class="vb-field-hint">Payments made past due date</span>
+          </div>
+        </div>
+        <div class="vb-form-nav">
+          <button type="button" class="vb-btn-ghost" onclick="goStep(2)">&larr; Back</button>
+          <button type="button" class="vb-btn-primary" onclick="goStep(4)">Next: Loan Details &rarr;</button>
         </div>
       </div>
 
-      <div class="vb-submit-row">
-        <span class="vb-loading-text" id="loading-text"></span>
-        <button type="submit" class="vb-btn-primary" id="submit-btn">Run Assessment &#8594;</button>
+      <!-- STEP 4: Loan Information -->
+      <div class="vb-form-step" id="step-4">
+        <div class="vb-form-section-title">&#127968; Loan Information</div>
+        <div class="vb-form-grid">
+          <div class="vb-field">
+            <label>Loan Amount (&#8377;)</label>
+            <div class="vb-input-currency">
+              <span class="vb-input-currency-prefix">&#8377;</span>
+              <input type="number" name="LoanAmount" id="LoanAmount" min="1000" value="1000000" required
+                     placeholder="e.g. 1000000">
+            </div>
+            <span class="vb-field-hint" id="hint-LoanAmount"></span>
+          </div>
+          <div class="vb-field">
+            <label>Loan Purpose</label>
+            <select name="LoanPurpose" id="LoanPurpose">
+              <option>Home</option>
+              <option>Vehicle</option>
+              <option>Education</option>
+              <option>Personal</option>
+              <option>Medical</option>
+              <option>Business</option>
+            </select>
+          </div>
+          <div class="vb-field">
+            <label>Loan Tenure (months)</label>
+            <input type="number" name="LoanTenure" id="LoanTenure" min="3" max="360" value="60" required
+                   placeholder="3 – 360">
+            <span class="vb-field-hint">Repayment period in months</span>
+          </div>
+          <div class="vb-field">
+            <label>Collateral Value (&#8377;)</label>
+            <div class="vb-input-currency">
+              <span class="vb-input-currency-prefix">&#8377;</span>
+              <input type="number" name="CollateralValue" id="CollateralValue" min="0" value="1500000" required
+                     placeholder="e.g. 1500000">
+            </div>
+            <span class="vb-field-hint" id="hint-CollateralValue"></span>
+          </div>
+          <div class="vb-field">
+            <label>Guarantor Available</label>
+            <select name="GuarantorAvailable" id="GuarantorAvailable">
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Summary preview -->
+        <div id="summary-preview" style="margin-top:var(--space-6);padding:var(--space-5);background:var(--surface-subtle);border:1px solid var(--border);border-radius:var(--radius-md);font-size:13px;color:var(--text-muted);">
+          <div style="font-weight:700;color:var(--text-primary);margin-bottom:var(--space-3);font-family:var(--font-headline);">&#128203; Assessment Summary</div>
+          <div id="summary-text" style="line-height:1.8;"></div>
+        </div>
+
+        <div class="vb-form-nav">
+          <button type="button" class="vb-btn-ghost" onclick="goStep(3)">&larr; Back</button>
+          <div style="display:flex;align-items:center;gap:var(--space-4);">
+            <span class="vb-loading-text" id="loading-text"></span>
+            <button type="submit" class="vb-btn-primary" id="submit-btn">
+              Run Assessment &rarr;
+            </button>
+          </div>
+        </div>
       </div>
+
     </form>
   </div>
+
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-  const form = document.getElementById("loan-form");
-  const submitBtn = document.getElementById("submit-btn");
-  const loadingText = document.getElementById("loading-text");
+  let currentStep = 1;
+  const totalSteps = 4;
+
+  // Currency fields that show formatted hints
+  const currencyFields = ['MonthlyIncome','MonthlyExpenses','SavingsBalance','InvestmentValue','ExistingEMI','LoanAmount','CollateralValue'];
+
+  function fmtINR(n) {
+    const num = Number(n);
+    if (isNaN(num) || num === 0) return '';
+    return '= \u20b9' + num.toLocaleString('en-IN');
+  }
+
+  // Attach live formatting hints
+  currencyFields.forEach(field => {
+    const el = document.getElementById(field);
+    const hint = document.getElementById('hint-' + field);
+    if (el && hint) {
+      const update = () => { hint.textContent = fmtINR(el.value); };
+      el.addEventListener('input', update);
+      update(); // initial
+    }
+  });
+
+  function goStep(n) {
+    const current = document.getElementById('step-' + currentStep);
+    const target  = document.getElementById('step-' + n);
+
+    // Basic validation before advancing
+    if (n > currentStep) {
+      const inputs = current.querySelectorAll('input[required], select[required]');
+      for (const inp of inputs) {
+        if (!inp.checkValidity()) { inp.reportValidity(); return; }
+      }
+    }
+
+    current.classList.remove('active');
+    target.classList.add('active');
+
+    // Update stepper UI
+    for (let i = 1; i <= totalSteps; i++) {
+      const item = document.getElementById('step-item-' + i);
+      if (i < n) {
+        item.classList.add('done');
+        item.classList.remove('active');
+        item.querySelector('.vb-stepper-num').textContent = '✓';
+      } else if (i === n) {
+        item.classList.add('active');
+        item.classList.remove('done');
+        item.querySelector('.vb-stepper-num').textContent = i;
+      } else {
+        item.classList.remove('active', 'done');
+        item.querySelector('.vb-stepper-num').textContent = i;
+      }
+      // connector lines
+      if (i < totalSteps) {
+        const line = document.getElementById('line-' + i);
+        if (i < n) line.classList.add('done');
+        else line.classList.remove('done');
+      }
+    }
+
+    currentStep = n;
+
+    // Build summary on step 4
+    if (n === 4) buildSummary();
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function buildSummary() {
+    const get = id => {
+      const el = document.getElementById(id);
+      if (!el) return '';
+      if (el.tagName === 'SELECT') return el.options[el.selectedIndex].text;
+      return el.value;
+    };
+    const fmtNum = v => Number(v) ? '\u20b9' + Number(v).toLocaleString('en-IN') : v;
+    const html = [
+      `<b>Age:</b> ${get('Age')} &bull; <b>Gender:</b> ${get('Gender')} &bull; <b>Marital Status:</b> ${get('MaritalStatus')}`,
+      `<b>Education:</b> ${get('Education')} &bull; <b>Nationality:</b> ${get('Nationality')} &bull; <b>Dependents:</b> ${get('Dependents')}`,
+      `<b>Employment:</b> ${get('EmploymentType')} &bull; <b>Sector:</b> ${get('IndustrySector')} &bull; <b>Experience:</b> ${get('YearsExperience')} yrs`,
+      `<b>Monthly Income:</b> ${fmtNum(get('MonthlyIncome'))} &bull; <b>Expenses:</b> ${fmtNum(get('MonthlyExpenses'))}`,
+      `<b>Savings:</b> ${fmtNum(get('SavingsBalance'))} &bull; <b>Investments:</b> ${fmtNum(get('InvestmentValue'))} &bull; <b>EMI:</b> ${fmtNum(get('ExistingEMI'))}`,
+      `<b>Credit Score:</b> ${get('CreditScore')} &bull; <b>Defaults:</b> ${get('PastDefaults')} &bull; <b>Late Payments:</b> ${get('LatePayments')}`,
+      `<b>Loan Amount:</b> ${fmtNum(get('LoanAmount'))} &bull; <b>Purpose:</b> ${get('LoanPurpose')} &bull; <b>Tenure:</b> ${get('LoanTenure')} months`,
+      `<b>Collateral:</b> ${fmtNum(get('CollateralValue'))} &bull; <b>Guarantor:</b> ${get('GuarantorAvailable')}`,
+    ].join('<br>');
+    document.getElementById('summary-text').innerHTML = html;
+  }
+
+  // Form submit
+  const form       = document.getElementById("loan-form");
+  const submitBtn  = document.getElementById("submit-btn");
+  const loadingText= document.getElementById("loading-text");
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -96,7 +408,7 @@
 
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="vb-spinner"></span> Analyzing...';
-    loadingText.textContent = "Running DNN inference, ELRS scoring & generating explanation...";
+    loadingText.textContent = "Running DNN inference, ELRS scoring, and generating explanation...";
 
     try {
       const resp = await fetch("/api/predict", {

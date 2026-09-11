@@ -1,66 +1,198 @@
 {% extends "base.html" %}
+{% block title %}Sign In — VittaBodh{% endblock %}
 {% block content %}
-<div class="vb-auth-wrap">
-  <div class="vb-card vb-auth-card">
 
-    <!-- Email verification banner (hidden by default) -->
-    <div class="vb-verify-banner" id="verify-banner" style="display:none;">
-      <span>&#9993;</span>
-      <div>
-        <strong>Check your inbox!</strong>
-        <p>A verification link has been sent to your email. Please verify before signing in.</p>
+<div class="vb-auth-wrap">
+
+  <!-- Left Brand Panel -->
+  <div class="vb-auth-brand">
+    <div class="vb-auth-brand-glow"></div>
+    <div style="position:relative;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:32px;">
+        <span class="vb-logo-dot" style="width:12px;height:12px;box-shadow:0 0 0 4px rgba(99,102,241,0.3);"></span>
+        <span style="font-family:var(--font-headline);font-size:20px;font-weight:700;color:#fff;">VittaBodh</span>
+      </div>
+      <h1 class="vb-auth-brand-title">
+        Explainable credit decisions,<br>
+        <span style="color:rgba(165,180,252,0.9);">every single time.</span>
+      </h1>
+      <p class="vb-auth-brand-sub">
+        A 4-layer Deep Neural Network with verified mathematical transparency
+        and AI-generated explanations. No more black-box lending.
+      </p>
+    </div>
+    <div class="vb-auth-features">
+      <div class="vb-auth-feature-item">
+        <div class="vb-auth-feature-icon">&#129504;</div>
+        <div>
+          <strong>99.3% Model Accuracy</strong>
+          <p>DNN trained on 25 financial and credit features with verified performance.</p>
+        </div>
+      </div>
+      <div class="vb-auth-feature-item">
+        <div class="vb-auth-feature-icon">&#128202;</div>
+        <div>
+          <strong>5-Pillar ELRS Scoring</strong>
+          <p>Every risk factor mathematically weighted and transparently attributed.</p>
+        </div>
+      </div>
+      <div class="vb-auth-feature-item">
+        <div class="vb-auth-feature-icon">&#128172;</div>
+        <div>
+          <strong>Gemini AI Explanations</strong>
+          <p>Plain-English clearance memos with concrete improvement steps.</p>
+        </div>
+      </div>
+      <div class="vb-auth-feature-item">
+        <div class="vb-auth-feature-icon">&#128196;</div>
+        <div>
+          <strong>One-Click PDF Reports</strong>
+          <p>Export compliance-ready audit dossiers for any assessment instantly.</p>
+        </div>
       </div>
     </div>
+  </div>
 
-    <h2 id="auth-title">Welcome back</h2>
-    <p class="sub" id="auth-sub">Sign in to access your loan assessments.</p>
+  <!-- Right Auth Form Panel -->
+  <div class="vb-auth-form-side">
+    <div class="vb-auth-card">
+      <div class="vb-auth-logo">
+        <span class="vb-auth-logo-dot"></span>
+        <span class="vb-auth-logo-text">VittaBodh</span>
+      </div>
 
-    <button class="vb-btn-google" id="google-btn">
-      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6 29.5 4 24 4c-7.5 0-14 4.2-17.7 10.7z"/><path fill="#4CAF50" d="M24 44c5.4 0 10.3-1.8 14.1-5l-6.5-5.4C29.5 35.4 26.9 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.6 5.1C9.9 39.6 16.4 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.6l6.5 5.4C41.6 35.7 44 30.3 44 24c0-1.2-.1-2.4-.4-3.5z"/></svg>
-      Continue with Google
-    </button>
+      <!-- Email verification banner -->
+      <div class="vb-verify-banner" id="verify-banner" style="display:none;">
+        <span>&#9993;</span>
+        <div>
+          <strong>Check your inbox!</strong>
+          <p>A verification link has been sent to your email. Please verify before signing in.</p>
+        </div>
+      </div>
 
-    <div class="vb-divider">or</div>
+      <!-- Tab switcher -->
+      <div class="vb-auth-tabs">
+        <button class="vb-auth-tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
+        <button class="vb-auth-tab" id="tab-signup" onclick="switchTab('signup')">Create Account</button>
+      </div>
 
-    <form id="email-form">
-      <!-- Name field: only visible in signup mode -->
-      <input class="vb-input" type="text" id="fullname" placeholder="Full Name"
-             style="display:none;" autocomplete="name">
-      <input class="vb-input" type="email" id="email" placeholder="Email address" required>
-      <input class="vb-input" type="password" id="password" placeholder="Password" required>
-      <p class="vb-password-hint" id="password-hint" style="display:none;font-size:12px;color:var(--text-mid);margin:-6px 0 10px;">
-        Use at least 8 characters with a mix of letters and numbers.
-      </p>
-      <button class="vb-btn-primary" style="width:100%" type="submit" id="submit-btn">
-        <span id="submit-text">Sign in</span>
-      </button>
-    </form>
-    <div class="vb-auth-error" id="auth-error"></div>
+      <!-- Sign In Mode -->
+      <div id="panel-signin">
+        <p class="vb-auth-sub">Sign in to access your loan assessments.</p>
+        <form id="signin-form">
+          <div class="vb-form-group">
+            <label for="signin-email">Email address</label>
+            <input class="vb-input" type="email" id="signin-email" placeholder="you@example.com" required autocomplete="email">
+          </div>
+          <div class="vb-form-group">
+            <label for="signin-password">Password</label>
+            <input class="vb-input" type="password" id="signin-password" placeholder="Your password" required autocomplete="current-password">
+          </div>
+          <div class="vb-auth-error" id="signin-error"></div>
+          <button class="vb-btn-primary" style="width:100%" type="submit" id="signin-btn">
+            <span id="signin-text">Sign in</span>
+          </button>
+        </form>
+        <div class="vb-auth-switch">
+          Don&#8217;t have an account?
+          <a href="#" onclick="switchTab('signup');return false;">Create one</a>
+        </div>
+      </div>
 
-    <div class="vb-auth-switch">
-      <span id="switch-text">Don&#8217;t have an account?</span>
-      <a href="#" id="switch-link">Create one</a>
+      <!-- Sign Up Mode -->
+      <div id="panel-signup" style="display:none;">
+        <p class="vb-auth-sub">Create your account to get started with explainable loan assessments.</p>
+        <form id="signup-form">
+          <div class="vb-form-group">
+            <label for="signup-name">Full Name</label>
+            <input class="vb-input" type="text" id="signup-name" placeholder="Your full name" required autocomplete="name">
+          </div>
+          <div class="vb-form-group">
+            <label for="signup-phone">Phone Number <span style="color:var(--text-subtle);font-weight:400;">(optional)</span></label>
+            <input class="vb-input" type="tel" id="signup-phone" placeholder="+91 98765 43210" autocomplete="tel">
+          </div>
+          <div class="vb-form-group">
+            <label for="signup-email">Email address</label>
+            <input class="vb-input" type="email" id="signup-email" placeholder="you@example.com" required autocomplete="email">
+          </div>
+          <div class="vb-form-group">
+            <label for="signup-password">Password</label>
+            <input class="vb-input" type="password" id="signup-password" placeholder="Minimum 8 characters" required autocomplete="new-password" oninput="checkPasswordStrength(this.value)">
+            <div class="vb-pw-strength">
+              <div class="vb-pw-strength-bar">
+                <div class="vb-pw-strength-fill" id="pw-fill"></div>
+              </div>
+              <span class="vb-pw-strength-label" id="pw-label"></span>
+            </div>
+            <p class="vb-password-hint">Use at least 8 characters with letters and numbers.</p>
+          </div>
+          <div class="vb-form-group">
+            <label for="signup-confirm">Confirm Password</label>
+            <input class="vb-input" type="password" id="signup-confirm" placeholder="Re-enter your password" required autocomplete="new-password">
+          </div>
+
+          <!-- T&C Checkbox -->
+          <div class="vb-checkbox-row">
+            <input type="checkbox" id="agree-tc" required>
+            <label class="vb-checkbox-label" for="agree-tc">
+              I agree to VittaBodh's
+              <a href="{{ url_for('web.terms') }}" target="_blank">Terms &amp; Conditions</a>
+              and
+              <a href="{{ url_for('web.privacy') }}" target="_blank">Privacy Policy</a>.
+              I understand my financial data will be used solely for loan assessment purposes.
+            </label>
+          </div>
+
+          <div class="vb-auth-error" id="signup-error"></div>
+          <button class="vb-btn-primary" style="width:100%" type="submit" id="signup-btn">
+            <span id="signup-text">Create Account</span>
+          </button>
+        </form>
+        <div class="vb-auth-switch">
+          Already have an account?
+          <a href="#" onclick="switchTab('signin');return false;">Sign in</a>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
 
-<style>
-.vb-verify-banner {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  background: linear-gradient(135deg, #1e3a5f, #1a4a7a);
-  border: 1px solid #2d6aad;
-  border-radius: 10px;
-  padding: 14px 16px;
-  margin-bottom: 20px;
-  color: #e0f0ff;
-  font-size: 13.5px;
+<script>
+function switchTab(tab) {
+  const isSignup = tab === 'signup';
+  document.getElementById('tab-signin').classList.toggle('active', !isSignup);
+  document.getElementById('tab-signup').classList.toggle('active', isSignup);
+  document.getElementById('panel-signin').style.display = isSignup ? 'none' : 'block';
+  document.getElementById('panel-signup').style.display = isSignup ? 'block' : 'none';
+  document.getElementById('verify-banner').style.display = 'none';
 }
-.vb-verify-banner span { font-size: 22px; line-height: 1; }
-.vb-verify-banner strong { display: block; margin-bottom: 3px; color: #fff; }
-.vb-verify-banner p { margin: 0; opacity: 0.85; }
-</style>
+
+function checkPasswordStrength(password) {
+  const fill  = document.getElementById('pw-fill');
+  const label = document.getElementById('pw-label');
+  let score = 0;
+  if (password.length >= 8)  score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+
+  const levels = ['', 'weak', 'medium', 'medium', 'strong'];
+  const labels = ['', 'Weak', 'Medium', 'Good', 'Strong'];
+  const widths = ['0%', '25%', '55%', '75%', '100%'];
+
+  fill.className  = 'vb-pw-strength-fill ' + (levels[score] || '');
+  fill.style.width = widths[score] || '0%';
+  label.className  = 'vb-pw-strength-label ' + (levels[score] || '');
+  label.textContent = labels[score] || '';
+}
+
+// Hash link to auto-open signup
+if (window.location.hash === '#signup') {
+  switchTab('signup');
+}
+</script>
+
 {% endblock %}
 
 {% block scripts %}
@@ -68,22 +200,12 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import {
     getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-    updateProfile, sendEmailVerification,
-    GoogleAuthProvider, signInWithPopup
+    updateProfile, sendEmailVerification
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
   const firebaseConfig = {{ firebase_config | tojson }};
   const fbApp = initializeApp(firebaseConfig);
-  const auth = getAuth(fbApp);
-
-  let mode = "signin"; // or "signup"
-
-  const errorBox    = document.getElementById("auth-error");
-  const submitText  = document.getElementById("submit-text");
-  const submitBtn   = document.getElementById("submit-btn");
-  const nameField   = document.getElementById("fullname");
-  const pwHint      = document.getElementById("password-hint");
-  const verifyBanner= document.getElementById("verify-banner");
+  const auth  = getAuth(fbApp);
 
   async function completeLogin(userCred) {
     const idToken = await userCred.user.getIdToken();
@@ -99,84 +221,63 @@
     window.location.href = "/dashboard";
   }
 
-  document.getElementById("switch-link").addEventListener("click", (e) => {
+  // Sign In
+  document.getElementById("signin-form").addEventListener("submit", async (e) => {
     e.preventDefault();
-    mode = mode === "signin" ? "signup" : "signin";
-    const isSignup = mode === "signup";
-
-    document.getElementById("auth-title").textContent = isSignup ? "Create your account" : "Welcome back";
-    document.getElementById("auth-sub").textContent = isSignup
-      ? "Get started with explainable loan assessments."
-      : "Sign in to access your loan assessments.";
-    submitText.textContent = isSignup ? "Create account" : "Sign in";
-    document.getElementById("switch-text").textContent = isSignup ? "Already have an account?" : "Don\u2019t have an account?";
-    document.getElementById("switch-link").textContent = isSignup ? "Sign in" : "Create one";
-
-    nameField.style.display = isSignup ? "block" : "none";
-    nameField.required = isSignup;
-    pwHint.style.display = isSignup ? "block" : "none";
+    const errorBox = document.getElementById("signin-error");
+    const btn      = document.getElementById("signin-btn");
+    const txt      = document.getElementById("signin-text");
     errorBox.textContent = "";
-    verifyBanner.style.display = "none";
-  });
+    btn.disabled = true;
+    txt.innerHTML = '<span class="vb-spinner"></span>';
 
-  document.getElementById("email-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    errorBox.textContent = "";
-    verifyBanner.style.display = "none";
-    submitBtn.disabled = true;
-    const original = submitText.textContent;
-    submitText.innerHTML = '<span class="vb-spinner"></span>';
-
-    const email    = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-    const fullName = nameField.value.trim();
-
+    const email    = document.getElementById("signin-email").value.trim();
+    const password = document.getElementById("signin-password").value;
     try {
-      if (mode === "signin") {
-        const userCred = await signInWithEmailAndPassword(auth, email, password);
-        await completeLogin(userCred);
-      } else {
-        // Sign up
-        const userCred = await createUserWithEmailAndPassword(auth, email, password);
-
-        // Store display name
-        if (fullName) {
-          await updateProfile(userCred.user, { displayName: fullName });
-        }
-
-        // Send verification email via Firebase (no SMTP config needed)
-        await sendEmailVerification(userCred.user);
-
-        // Show verification banner instead of redirecting
-        verifyBanner.style.display = "flex";
-
-        // Switch back to sign-in mode so they can log in after verifying
-        mode = "signin";
-        document.getElementById("auth-title").textContent = "Welcome back";
-        document.getElementById("auth-sub").textContent = "Sign in to access your loan assessments.";
-        submitText.textContent = "Sign in";
-        document.getElementById("switch-text").textContent = "Don\u2019t have an account?";
-        document.getElementById("switch-link").textContent = "Create one";
-        nameField.style.display = "none";
-        nameField.required = false;
-        pwHint.style.display = "none";
-      }
-    } catch (err) {
-      errorBox.textContent = humanizeError(err.message || String(err));
-    } finally {
-      submitBtn.disabled = false;
-      submitText.textContent = original;
-    }
-  });
-
-  document.getElementById("google-btn").addEventListener("click", async () => {
-    errorBox.textContent = "";
-    try {
-      const provider = new GoogleAuthProvider();
-      const userCred = await signInWithPopup(auth, provider);
+      const userCred = await signInWithEmailAndPassword(auth, email, password);
       await completeLogin(userCred);
     } catch (err) {
       errorBox.textContent = humanizeError(err.message || String(err));
+    } finally {
+      btn.disabled = false;
+      txt.textContent = "Sign in";
+    }
+  });
+
+  // Sign Up
+  document.getElementById("signup-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const errorBox = document.getElementById("signup-error");
+    const btn      = document.getElementById("signup-btn");
+    const txt      = document.getElementById("signup-text");
+    errorBox.textContent = "";
+
+    const fullName = document.getElementById("signup-name").value.trim();
+    const email    = document.getElementById("signup-email").value.trim();
+    const password = document.getElementById("signup-password").value;
+    const confirm  = document.getElementById("signup-confirm").value;
+    const agreed   = document.getElementById("agree-tc").checked;
+
+    if (!fullName) { errorBox.textContent = "Please enter your full name."; return; }
+    if (password !== confirm) { errorBox.textContent = "Passwords do not match."; return; }
+    if (password.length < 8)  { errorBox.textContent = "Password must be at least 8 characters."; return; }
+    if (!agreed) { errorBox.textContent = "You must accept the Terms & Conditions to create an account."; return; }
+
+    btn.disabled = true;
+    txt.innerHTML = '<span class="vb-spinner"></span>';
+
+    try {
+      const userCred = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(userCred.user, { displayName: fullName });
+      await sendEmailVerification(userCred.user);
+
+      document.getElementById("verify-banner").style.display = "flex";
+      window.switchTab("signin");
+    } catch (err) {
+      errorBox.textContent = humanizeError(err.message || String(err));
+    } finally {
+      btn.disabled = false;
+      txt.textContent = "Create Account";
     }
   });
 
@@ -195,5 +296,8 @@
       return "Too many attempts. Please wait a moment and try again.";
     return msg.replace("Firebase: ", "").replace(/\(auth\/.*\)\.?/, "").trim();
   }
+
+  // Expose switchTab globally
+  window.switchTab = window.switchTab || function(){};
 </script>
 {% endblock %}

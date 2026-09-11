@@ -2,12 +2,25 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0B0E1F">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="VittaBodh">
+<meta name="mobile-web-app-capable" content="yes">
 <title>{% block title %}VittaBodh — Explainable AI Loan Assessment{% endblock %}</title>
 <meta name="description" content="{% block description %}VittaBodh: AI-powered, fully explainable loan approval platform using Deep Neural Networks and ELRS risk scoring.{% endblock %}">
+<meta name="keywords" content="loan assessment, AI credit scoring, explainable AI, ELRS, fintech">
+<!-- Open Graph -->
+<meta property="og:title" content="VittaBodh — Explainable AI Loan Assessment">
+<meta property="og:description" content="Transparent credit intelligence. Every decision explained.">
+<meta property="og:type" content="website">
+<!-- Preconnect fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<!-- Material Symbols for icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
 {% block head %}{% endblock %}
@@ -17,13 +30,19 @@
   <a href="{{ url_for('web.landing') }}" class="vb-brand">
     <span class="vb-logo-dot"></span> VittaBodh
   </a>
-  <div class="vb-nav-links">
+
+  <!-- Mobile hamburger -->
+  <button class="vb-nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+
+  <div class="vb-nav-links" id="nav-links">
     {% if session.get('uid') %}
       <a href="{{ url_for('web.dashboard') }}">Dashboard</a>
       <a href="{{ url_for('web.apply') }}">New Assessment</a>
       <a href="{{ url_for('web.history_page') }}">History</a>
       {% if session.get('is_admin') %}
-        <a href="{{ url_for('web.admin') }}" class="vb-nav-admin">? Admin</a>
+        <a href="{{ url_for('web.admin') }}" class="vb-nav-admin">&#9733; Admin</a>
       {% endif %}
       <span class="vb-nav-user">{{ session.get('user', {}).get('name', '') }}</span>
       <a href="{{ url_for('web.logout') }}" class="vb-btn-ghost-sm">Sign out</a>
@@ -32,19 +51,57 @@
     {% endif %}
   </div>
 </nav>
+
 <main>
   {% block content %}{% endblock %}
 </main>
+
 <footer class="vb-footer">
-  <span>VittaBodh — Explainable AI Framework for Loan Approval &amp; Rejection Analysis</span>
-  <span class="vb-footer-muted">Deep Learning &middot; ELRS &middot; Integrated Gradients &middot; Gemini AI</span>
+  <div class="vb-footer-inner">
+    <div class="vb-footer-brand">
+      <span class="vb-logo-dot"></span> VittaBodh
+    </div>
+    <div class="vb-footer-links">
+      <a href="{{ url_for('web.landing') }}">Home</a>
+      {% if session.get('uid') %}
+        <a href="{{ url_for('web.apply') }}">New Assessment</a>
+        <a href="{{ url_for('web.history_page') }}">History</a>
+      {% else %}
+        <a href="{{ url_for('web.login') }}">Sign In</a>
+      {% endif %}
+      <a href="{{ url_for('web.privacy') }}">Privacy Policy</a>
+      <a href="{{ url_for('web.terms') }}">Terms &amp; Conditions</a>
+    </div>
+    <span class="vb-footer-muted">
+      &copy; 2025 VittaBodh &middot; Deep Learning, ELRS, Integrated Gradients, Gemini AI
+    </span>
+  </div>
 </footer>
+
 {% block scripts %}{% endblock %}
 <script>
+  // Mobile nav toggle
+  const navToggle = document.getElementById('nav-toggle');
+  const navLinks  = document.getElementById('nav-links');
+  if (navToggle && navLinks) {
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      navToggle.classList.toggle('open', open);
+      navToggle.setAttribute('aria-expanded', open);
+    });
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (!navToggle.contains(e.target) && !navLinks.contains(e.target)) {
+        navLinks.classList.remove('open');
+        navToggle.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', false);
+      }
+    });
+  }
   // PWA service worker registration
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/static/sw.js').catch(() => {});
   }
 </script>
 </body>
-</html>
+</html>
